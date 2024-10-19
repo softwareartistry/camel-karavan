@@ -170,22 +170,6 @@ export async function readComponents(context: ExtensionContext) {
   const components: [] = JSON.parse(code);
   const jsons: string[] = [];
   components.forEach((c) => jsons.push(JSON.stringify(c)));
-  const zsegmentTransformerPath = path.join(
-    context.extensionPath,
-    "metadata",
-    "zsegment-transformer.json"
-  );
-  const zsegmentfile = await readFile(zsegmentTransformerPath);
-  const zsegmentCode = Buffer.from(zsegmentfile).toString("utf8");
-  jsons.push(zsegmentCode);
-  const atlasmapPath = path.join(
-    context.extensionPath,
-    "metadata",
-    "atlasmap.json"
-  );
-  const atlasmapfile = await readFile(atlasmapPath);
-  const atlasmapCode = Buffer.from(atlasmapfile).toString("utf8");
-  jsons.push(atlasmapCode);
   return jsons;
 }
 

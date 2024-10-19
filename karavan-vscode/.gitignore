@@ -6,10 +6,12 @@ node_modules
 .DS_Store
 .idea
 yarn-error.log
-webview/designer
+# webview/designer
 webview/components
-webview/knowledgebase
+# webview/knowledgebase
 webview/kamelets
-webview/core
+# webview/core
 webview/eip
 .vscode-test-web
+#openapi
+webview/client/api
