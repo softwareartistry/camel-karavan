@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
+import api from './client/RequestClient';
 import { Page, PageSection, Spinner, Text, TextVariants } from '@patternfly/react-core';
 import { KaravanDesigner } from './designer/KaravanDesigner';
 import vscode from './vscode';
@@ -203,6 +204,24 @@ class App extends React.Component<Props, State> {
 				break;
 			case 'downloadImage':
 				EventBus.sendCommand('downloadImage');
+				break;
+			case 'deployRoute':
+				console.log('deploying routes in app.tsx');
+				async function deployRoute() {
+					try {
+						console.log('api called for deploy route with route id', message.routeId);
+						const response = await api.RouteControllerApi.start(message.routeId);
+						console.log('api has been called and response is', response);
+						return response;
+					} catch (err) {
+						console.error('error while calling api', err);
+						return err;
+					}
+				}
+				Promise.resolve(deployRoute()).then(() => {
+					console.log('Route deployed successfully');
+					alert('Route deployed successfully');
+				});
 				break;
 			case 'blockList':
 				const blockList = message.blockList;

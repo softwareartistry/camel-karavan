@@ -466,56 +466,56 @@
 		"commands": [
 			{
 				"command": "karavan.topology",
-				"title": "Karavan: Show Topology",
+				"title": "ZSegment: Show Topology",
 				"icon": "$(type-hierarchy)"
 			},
 			{
 				"command": "karavan.create-yaml",
-				"title": "Karavan: Create Integration",
+				"title": "ZSegment: Create Integration",
 				"icon": "$(add)"
 			},
 			{
 				"command": "karavan.create-kamelet",
-				"title": "Karavan: Create Kamelet",
+				"title": "ZSegment: Create Kamelet",
 				"icon": "$(add)"
 			},
 			{
 				"command": "karavan.create-application",
-				"title": "Karavan: Create Application",
+				"title": "ZSegment: Create Application",
 				"icon": "$(symbol-property)"
 			},
 			{
 				"command": "karavan.open",
-				"title": "Karavan: Open",
+				"title": "ZSegment: Open",
 				"icon": "$(wand)"
 			},
 			{
 				"command": "karavan.open-file",
-				"title": "Karavan: Open editor"
+				"title": "ZSegment: Open editor"
 			},
 			{
 				"command": "karavan.run-project-jbang",
-				"title": "Karavan: JBang run",
+				"title": "ZSegment: JBang run",
 				"icon": "$(rocket)"
 			},
 			{
 				"command": "karavan.run-project-runtime",
-				"title": "Karavan: Runtime run",
+				"title": "ZSegment: Runtime run",
 				"icon": "$(run)"
 			},
 			{
 				"command": "karavan.jbang-export",
-				"title": "Karavan: Export",
+				"title": "ZSegment: Export",
 				"icon": "$(export)"
 			},
 			{
 				"command": "karavan.deploy",
-				"title": "Karavan: Deploy",
+				"title": "ZSegment: Deploy",
 				"icon": "$(layers)"
 			},
 			{
 				"command": "karavan.generate-rest",
-				"title": "Karavan: Generate REST API"
+				"title": "ZSegment: Generate REST API"
 			},
 			{
 				"command": "karavan.download-image",
@@ -545,22 +545,22 @@
 			"explorer/context": [
 				{
 					"command": "karavan.create-yaml",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /routes$/",
 					"group": "karavan@2"
 				},
 				{
 					"command": "karavan.create-kamelet",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /rou$/",
 					"group": "karavan@2"
 				},
 				{
 					"command": "karavan.topology",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot || resourceFilename =~ /.camel.yaml$/",
+					"when": "(explorerResourceIsFolder && resourceFilename =~ /routes$/) || resourceFilename =~ /.camel.yaml$/",
 					"group": "karavan@1"
 				},
 				{
 					"command": "karavan.create-application",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /rou$/",
 					"group": "karavan@3"
 				},
 				{
@@ -570,22 +570,22 @@
 				},
 				{
 					"command": "karavan.run-project-jbang",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /rou$/",
 					"group": "karavan@5"
 				},
 				{
 					"command": "karavan.run-project-runtime",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /rou$/",
 					"group": "karavan@6"
 				},
 				{
 					"command": "karavan.jbang-export",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "explorerResourceIsFolder && resourceFilename =~ /rou$/",
 					"group": "karavan@7"
 				},
 				{
 					"command": "karavan.deploy",
-					"when": "explorerResourceIsFolder || explorerResourceIsRoot",
+					"when": "resourceFilename =~ /.camel.yaml$/ || resourceFilename =~ /.kamelet.yaml$/",
 					"group": "karavan@8"
 				},
 				{
@@ -685,7 +685,7 @@
 			"activitybar": [
 				{
 					"id": "karavanView",
-					"title": "Karavan",
+					"title": "ZSegment",
 					"icon": "icons/karavan-mono-24x24.svg"
 				}
 			]
