@@ -15,152 +15,176 @@
  * limitations under the License.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import {
-    action,
-    createTopologyControlButtons,
-    defaultControlButtonsOptions,
-    GRAPH_LAYOUT_END_EVENT,
-    TopologyView,
-    TopologyControlBar,
-    Visualization,
-    VisualizationProvider,
-    VisualizationSurface,
-    DagreLayout,
-    SELECTION_EVENT, Model,
-} from '@patternfly/react-topology';
-import {customComponentFactory, getModel} from "./TopologyApi";
-import {shallow} from "zustand/shallow";
-import {useTopologyStore} from "./TopologyStore";
-import {TopologyPropertiesPanel} from "./TopologyPropertiesPanel";
-import {TopologyToolbar} from "./TopologyToolbar";
-import {useDesignerStore} from "../designer/DesignerStore";
-import {IntegrationFile} from "core/model/IntegrationDefinition";
+  action,
+  createTopologyControlButtons,
+  defaultControlButtonsOptions,
+  GRAPH_LAYOUT_END_EVENT,
+  TopologyView,
+  TopologyControlBar,
+  Visualization,
+  VisualizationProvider,
+  VisualizationSurface,
+  DagreLayout,
+  SELECTION_EVENT,
+  Model,
+} from "@patternfly/react-topology";
+import { customComponentFactory, getModel } from "./TopologyApi";
+import { shallow } from "zustand/shallow";
+import { useTopologyStore } from "./TopologyStore";
+import { TopologyPropertiesPanel } from "./TopologyPropertiesPanel";
+import { TopologyToolbar } from "./TopologyToolbar";
+import { useDesignerStore } from "../designer/DesignerStore";
+import { IntegrationFile } from "core/model/IntegrationDefinition";
 
 interface Props {
-    files: IntegrationFile[],
-    onSetFile: (fileName: string) => void
-    hideToolbar: boolean
-    onClickAddRoute: () => void
-    onClickAddREST: () => void
-    onClickAddKamelet: () => void
-    onClickAddBean: () => void
-    isDev?: boolean
+  files: IntegrationFile[];
+  onSetFile: (fileName: string) => void;
+  hideToolbar: boolean;
+  onClickAddRoute: () => void;
+  onClickAddREST: () => void;
+  onClickAddKamelet: () => void;
+  onClickAddBean: () => void;
+  isDev?: boolean;
 }
 
 export function TopologyTab(props: Props) {
+  const [
+    selectedIds,
+    setSelectedIds,
+    setFileName,
+    ranker,
+    setRanker,
+    setNodeData,
+    showGroups,
+  ] = useTopologyStore(
+    (s) => [
+      s.selectedIds,
+      s.setSelectedIds,
+      s.setFileName,
+      s.ranker,
+      s.setRanker,
+      s.setNodeData,
+      s.showGroups,
+    ],
+    shallow
+  );
+  const [setSelectedStep] = useDesignerStore(
+    (s) => [s.setSelectedStep],
+    shallow
+  );
 
-    const [selectedIds, setSelectedIds, setFileName, ranker, setRanker, setNodeData, showGroups] = useTopologyStore((s) =>
-        [s.selectedIds, s.setSelectedIds, s.setFileName, s.ranker, s.setRanker, s.setNodeData, s.showGroups], shallow);
-    const [setSelectedStep] = useDesignerStore((s) => [s.setSelectedStep], shallow)
-
-    function setTopologySelected(model: Model, ids: string []) {
-        setSelectedIds(ids);
-        if (ids.length > 0) {
-            const node = model.nodes?.filter(node => node.id === ids[0]);
-            if (node && node.length > 0) {
-                const data = node[0].data;
-                setNodeData(data);
-                if (data && data.step) {
-                    setFileName(data.fileName)
-                    setSelectedStep(data.step)
-                } else {
-                    setSelectedStep(undefined);
-                    setFileName(undefined)
-                }
-            }
+  function setTopologySelected(model: Model, ids: string[]) {
+    setSelectedIds(ids);
+    if (ids.length > 0) {
+      const node = model.nodes?.filter((node) => node.id === ids[0]);
+      if (node && node.length > 0) {
+        const data = node[0].data;
+        setNodeData(data);
+        if (data && data.step) {
+          setFileName(data.fileName);
+          setSelectedStep(data.step);
+        } else {
+          setSelectedStep(undefined);
+          setFileName(undefined);
         }
+      }
     }
+  }
 
-    const controller = React.useMemo(() => {
-        const model = getModel(props.files, showGroups);
-        const newController = new Visualization();
-        newController.registerLayoutFactory((_, graph) =>
-            new DagreLayout(graph, {
-                rankdir: 'TB',
-                ranker: ranker,
-                nodesep: 20,
-                edgesep: 20,
-                ranksep: 0
-            }));
-
-        newController.registerComponentFactory(customComponentFactory);
-
-        newController.addEventListener(SELECTION_EVENT, args => setTopologySelected(model, args));
-        // newController.addEventListener(SELECTION_EVENT, args => {
-        //     console.log(args)
-        // });
-        newController.addEventListener(GRAPH_LAYOUT_END_EVENT, () => {
-            newController.getGraph().fit(80);
-        });
-
-        newController.fromModel(model, false);
-        return newController;
-    },[]);
-
-    React.useEffect(() => {
-        setSelectedIds([])
-        const model = getModel(props.files, showGroups);
-        controller.fromModel(model, false);
-    }, [ranker, controller, setSelectedIds, props.files, showGroups]);
-
-    const controlButtons = React.useMemo(() => {
-        // const customButtons = [
-        //     {
-        //         id: "change-ranker",
-        //         icon: <RankerIcon />,
-        //         tooltip: 'Change Ranker ' + ranker,
-        //         ariaLabel: '',
-        //         callback: (id: any) => {
-        //             if (ranker === 'network-simplex') {
-        //                 setRanker('tight-tree')
-        //             } else {
-        //                 setRanker('network-simplex')
-        //             }
-        //         }
-        //     }
-        // ];
-        return createTopologyControlButtons({
-            ...defaultControlButtonsOptions,
-            zoomInCallback: action(() => {
-                controller.getGraph().scaleBy(4 / 3);
-            }),
-            zoomOutCallback: action(() => {
-                controller.getGraph().scaleBy(0.75);
-            }),
-            fitToScreenCallback: action(() => {
-                controller.getGraph().fit(80);
-            }),
-            resetViewCallback: action(() => {
-                controller.getGraph().reset();
-                controller.getGraph().layout();
-            }),
-            legend: false,
-            // customButtons,
-        });
-    }, [ranker, controller, setRanker]);
-
-    return (
-        <TopologyView
-            className="topology-panel"
-            contextToolbar={!props.hideToolbar
-                ? <TopologyToolbar onClickAddRoute={props.onClickAddRoute}
-                                   onClickAddBean={props.onClickAddBean}
-                                   onClickAddKamelet={props.onClickAddKamelet}
-                                   onClickAddREST={props.onClickAddREST}
-                                   isDev={props.isDev}
-                />
-                : undefined}
-            sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile}/>}
-            controlBar={
-                <TopologyControlBar
-                    controlButtons={controlButtons}
-                />
-            }
-        >
-            <VisualizationProvider controller={controller}>
-                <VisualizationSurface state={{selectedIds}}/>
-            </VisualizationProvider>
-        </TopologyView>
+  const controller = React.useMemo(() => {
+    const model = getModel(props.files, showGroups);
+    const newController = new Visualization();
+    newController.registerLayoutFactory(
+      (_, graph) =>
+        new DagreLayout(graph, {
+          rankdir: "TB",
+          ranker: ranker,
+          nodesep: 20,
+          edgesep: 20,
+          ranksep: 0,
+        })
     );
+
+    newController.registerComponentFactory(customComponentFactory);
+
+    newController.addEventListener(SELECTION_EVENT, (args) =>
+      setTopologySelected(model, args)
+    );
+    // newController.addEventListener(SELECTION_EVENT, args => {
+    //     console.log(args)
+    // });
+    newController.addEventListener(GRAPH_LAYOUT_END_EVENT, () => {
+      newController.getGraph().fit(80);
+    });
+
+    newController.fromModel(model, false);
+    return newController;
+  }, []);
+
+  React.useEffect(() => {
+    setSelectedIds([]);
+    const model = getModel(props.files, showGroups);
+    controller.fromModel(model, false);
+  }, [ranker, controller, setSelectedIds, props.files, showGroups]);
+
+  const controlButtons = React.useMemo(() => {
+    // const customButtons = [
+    //     {
+    //         id: "change-ranker",
+    //         icon: <RankerIcon />,
+    //         tooltip: 'Change Ranker ' + ranker,
+    //         ariaLabel: '',
+    //         callback: (id: any) => {
+    //             if (ranker === 'network-simplex') {
+    //                 setRanker('tight-tree')
+    //             } else {
+    //                 setRanker('network-simplex')
+    //             }
+    //         }
+    //     }
+    // ];
+    return createTopologyControlButtons({
+      ...defaultControlButtonsOptions,
+      zoomInCallback: action(() => {
+        controller.getGraph().scaleBy(4 / 3);
+      }),
+      zoomOutCallback: action(() => {
+        controller.getGraph().scaleBy(0.75);
+      }),
+      fitToScreenCallback: action(() => {
+        controller.getGraph().fit(80);
+      }),
+      resetViewCallback: action(() => {
+        controller.getGraph().reset();
+        controller.getGraph().layout();
+      }),
+      legend: false,
+      // customButtons,
+    });
+  }, [ranker, controller, setRanker]);
+
+  return (
+    <TopologyView
+      className="topology-panel"
+      contextToolbar={
+        !props.hideToolbar ? (
+          <TopologyToolbar
+            onClickAddRoute={props.onClickAddRoute}
+            onClickAddBean={props.onClickAddBean}
+            onClickAddKamelet={props.onClickAddKamelet}
+            onClickAddREST={props.onClickAddREST}
+            isDev={props.isDev}
+          />
+        ) : undefined
+      }
+      sideBar={<TopologyPropertiesPanel onSetFile={props.onSetFile} />}
+      controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+    >
+      <VisualizationProvider controller={controller}>
+        <VisualizationSurface state={{ selectedIds }} />
+      </VisualizationProvider>
+    </TopologyView>
+  );
 }

@@ -14,13 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from "react";
-import {createRoot} from "react-dom/client";
-import App from "./App";
-import "./index.css";
-import "@patternfly/patternfly/patternfly.css";
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+import '@patternfly/patternfly/patternfly.css';
+import api from './client/RequestClient';
 
+setInterval(
+	() => window?.top?.postMessage({ type: 'ACTION_FROM_WEBVIEW', payload: 'Hello from the webview!' }, '*'),
+	5000,
+);
+
+window.addEventListener('message', (event) => {
+	const message = event.data;
+	if (message.command === 'ACTION_FROM_REACT') {
+		console.log('Message received from React:', message.payload);
+		const baseURL = message.payload.baseURL;
+		const authToken = message.payload.access_token;
+		sessionStorage.setItem('currentInterface', JSON.stringify(message.payload.currentInterface));
+		api.init(baseURL, authToken);
+	}
+});
 const dark = document.body.className.includes('vscode-dark');
 const container = document.getElementById('root');
 const root = createRoot(container!);
-root.render(<App dark={dark}/>);
+root.render(<App dark={dark} />);

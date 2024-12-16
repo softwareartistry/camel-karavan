@@ -17,12 +17,22 @@
 
 import { ExtensionContext, Uri, Webview } from "vscode";
 
+export function getWebviewContent(
+  context: ExtensionContext,
+  webview: Webview
+): string {
+  const styleUri = getUri(
+    webview,
+    context.extensionUri,
+    "/dist/main.css"
+  ).toString();
+  const scriptUri = getUri(
+    webview,
+    context.extensionUri,
+    "/dist/webview.js"
+  ).toString();
 
-export function getWebviewContent(context: ExtensionContext, webview: Webview): string {
-    const styleUri = getUri(webview, context.extensionUri, "/dist/main.css").toString()
-        const scriptUri = getUri(webview, context.extensionUri, "/dist/webview.js").toString()
-        
-        return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
         <html lang="en">
         
         <head>
@@ -53,5 +63,5 @@ export function getWebviewContent(context: ExtensionContext, webview: Webview): 
 }
 
 function getUri(webview: Webview, extensionUri: Uri, path: string) {
-    return webview.asWebviewUri(Uri.joinPath(extensionUri, path));
+  return webview.asWebviewUri(Uri.joinPath(extensionUri, path));
 }
