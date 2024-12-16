@@ -1,0 +1,52 @@
+name: Build and Publish VSIX
+
+on:
+  push:
+    branches:
+      - sprint
+
+jobs:
+  build-and-publish:
+    runs-on: [self-hosted, nodejs22]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Next Semantic Version
+        id: version
+        uses: paulhatch/semantic-version@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sprint
+          prefix: v
+      - name: Log the new version
+        run: |
+          echo "New version generated: ${{ steps.version.outputs.version }}"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the VSIX file
+        run: npx vsce package
+
+      - name: Rename VSIX with new version
+        run: mv *.vsix "zsegment-route-designer-${{ steps.version.outputs.version }}.vsix"
+
+      - name: Push VSIX to Nexus
+        run: |
+          curl -u $NEXUS_USER:$NEXUS_PASSWORD \
+            --upload-file "my-extension-${{ steps.version.outputs.version }}.vsix" \
+            https://artifact.314ecorp.tech/repository/vsix-hosted/zsegment-route-designer-${{ steps.version.outputs.version }}.vsix
+        env:
+          NEXUS_USER: developer
+          NEXUS_PASSWORD: aPXcrt**98HJO001
+
+      - name: Create and Push Git Tag
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch --all
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release version v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
