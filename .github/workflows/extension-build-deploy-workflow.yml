@@ -7,11 +7,16 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: [self-hosted, nodejs22]
+    runs-on: ubuntu-latest # Use GitHub-hosted runner
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Generate Next Semantic Version
         id: version
@@ -20,6 +25,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: sprint
           prefix: v
+
       - name: Log the new version
         run: |
           echo "New version generated: ${{ steps.version.outputs.version }}"
@@ -37,7 +43,7 @@ jobs:
       - name: Push VSIX to Nexus
         run: |
           curl -u $NEXUS_USER:$NEXUS_PASSWORD \
-            --upload-file "my-extension-${{ steps.version.outputs.version }}.vsix" \
+            --upload-file "zsegment-route-designer-${{ steps.version.outputs.version }}.vsix" \
             https://artifact.314ecorp.tech/repository/vsix-hosted/zsegment-route-designer-${{ steps.version.outputs.version }}.vsix
         env:
           NEXUS_USER: developer
