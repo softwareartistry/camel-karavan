@@ -3,7 +3,7 @@ name: Build and Publish VSIX
 on:
   push:
     branches:
-      - sprint
+      - "sprint"
 
 jobs:
   build-and-publish:
@@ -31,7 +31,8 @@ jobs:
         run: npx vsce package
 
       - name: Rename VSIX with new version
-        run: mv *.vsix "zsegment-route-designer-${{ steps.version.outputs.version }}.vsix"
+        run: |
+          mv *.vsix "zsegment-route-designer-${{ steps.version.outputs.version }}.vsix"
 
       - name: Push VSIX to Nexus
         run: |
